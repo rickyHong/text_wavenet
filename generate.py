@@ -107,15 +107,16 @@ def main():
         next_sample = net.predict_proba(samples)
 
     if args.fast_generation:
-        sess.run(tf.initialize_all_variables())
+        sess.run(tf.global_variables_initializer())
         sess.run(net.init_ops)
 
     variables_to_restore = {
-        var.name[:-2]: var for var in tf.all_variables()
+        var.name[:-2]: var for var in tf.global_variables()
         if not ('state_buffer' in var.name or 'pointer' in var.name)}
     saver = tf.train.Saver(variables_to_restore)
 
     print('Restoring model from {}'.format(args.checkpoint))
+    saver = tf.train.import_meta_graph(args.checkpoint + '.meta')
     saver.restore(sess, args.checkpoint)
 
     decode = samples
